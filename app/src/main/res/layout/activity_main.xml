@@ -17,7 +17,8 @@
         android:text=""
         android:textAlignment="center"
         android:textSize="20sp"
-        android:textColor="#000000"/>
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"/>
     <!--Bluetooth icon (on/off)-->
     <ImageView
         android:id="@+id/bluetoothIcono"
@@ -60,7 +61,8 @@
         android:id="@+id/listaDispositivos"
         android:minWidth="200dp"
         android:text=""
-        android:textColor="#000"
+        android:textColor="#F4EEEE"
+        android:textStyle="italic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

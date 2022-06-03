@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.sqlite.SQLiteException
 import android.location.Location
 import android.location.LocationManager
 import android.os.*
@@ -54,15 +55,14 @@ class MainActivity_menu_Maestro : AppCompatActivity() {
     private val CHOOSER_FILE=112
     private val REQUEST_PERMESSIONS_LOC = 222
     private val REQUEST_PERMESSIONS_EXTERNAL = 222
+
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         binding= ActivityMainMenuMaestroBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.btnBajarDatos.setOnClickListener {
-            finish()
-        }
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -135,20 +135,24 @@ class MainActivity_menu_Maestro : AppCompatActivity() {
 
         binding.btnBajarDatos.setOnClickListener {
 
-            /*
             var tmp = LocalDateTime.now()
-            consulta("${tmp.year}-${tmp.monthValue}-${tmp.dayOfMonth}")
+           // consulta("${tmp.year}-${tmp.monthValue}-${tmp.dayOfMonth}")
             //Toast.makeText(this,"${tmp.year}-${tmp.monthValue}-${tmp.dayOfMonth}",Toast.LENGTH_LONG).show()
 
 
             var mes = tmp.monthValue
             var ano = tmp.year
             var dia = tmp.dayOfMonth
+            var min = tmp.minute
+            var seg =tmp.second
 
-                consulta("${ano}-${mes}-${dia}")
-                Toast.makeText(this,"AD: ${ano}-${mes}-${dia}",Toast.LENGTH_LONG).show()
-*/
-            crearArchivo2()
+
+                 //consulta("${ano}-${mes}-${dia}-${min}-${seg}")
+                 consulta2("${ano},${mes},${dia},${min},${seg}")
+                //Toast.makeText(this,"AD: ${ano}-${mes}-${dia}",Toast.LENGTH_LONG).show()
+
+
+        //crearArchivo2()
         }
 
     }
@@ -339,45 +343,55 @@ class MainActivity_menu_Maestro : AppCompatActivity() {
         asis.insertar()
     }
 
+    fun consulta2(fecha: String) {
+        var arreglo = ArrayList<String>()
+
+        var asis = "${fecha},"+binding.tvMessage.text.toString()
+        arreglo.add(asis)
+        //Toast.makeText(applicationContext,"${arreglo}", Toast.LENGTH_SHORT).show()
+        crearArchivo2(arreglo)
+
+    }
     fun consulta(fecha: String){
         var asis = Asistencia(this).asistenciaXFecha(fecha)
-        crearArchivo(asis)
+//        crearArchivo(asis)
+
     }
-    fun crearArchivo(a: ArrayList<Asistencia>){
-        var archivo = OutputStreamWriter(openFileOutput("asistencia.csv", MODE_PRIVATE))
-        var cadena = ""
+    fun crearArchivo(a: ArrayList<String>){
 
         try {
-            cadena+="nocontrol,fecha,hora\n"
-            for(i in a){
-                cadena+=(i.nocontrol)
-                cadena+=(",")
-                cadena+=(i.fecha)
-                cadena+=(",")
-                cadena+="\n"
-            }
+            val archivo:OutputStreamWriter = OutputStreamWriter(this.openFileOutput("archivoFrases.txt", MODE_APPEND))
+            var cadena = "${a}"
             archivo.write(cadena)
-            archivo.flush() //Forza el guardado
-            archivo.close() //Se libera del modo que tenga, privado en este caso
-            println("Write CSV successfully!")
+            archivo.flush()
+            archivo.close()
+            Toast.makeText(applicationContext,"Se creo el archivo", Toast.LENGTH_SHORT).show()
 
-        } catch (e: Exception) {
-            println("Writing CSV error!")
-            e.printStackTrace()
+
+        }catch (e:Exception){
+            AlertDialog.Builder(this).setMessage("No se guardo la informacion").show()
         }
+/*
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM,archivo)
+        }
+        startActivity(Intent.createChooser(sendIntent, "SHARE"))
 
-        crearArchivo2()
 
+ */
     }
 
-    fun crearArchivo2(){
-        val sendIntent = Intent()
-        val file: File = File(this.getFilesDir(), "asistencia.csv")
-        sendIntent.action = Intent.ACTION_SEND
-        sendIntent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this,
-            "archivo.soy.totalmente.benigno",file))
-        sendIntent.type = "text/csv"
-        startActivity(Intent.createChooser(sendIntent, "SHARE"))
+    fun crearArchivo2(a: ArrayList<String>){
+        val intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT,"${a}")
+            type="text/plain"
+            putExtra(Intent.EXTRA_TITLE,"Elige el medio para compartir el archivo")
+        }
+
+        val shareIntent=Intent.createChooser(intent,null)
+        startActivity(shareIntent)
     }
 
    @RequiresApi(Build.VERSION_CODES.O)
