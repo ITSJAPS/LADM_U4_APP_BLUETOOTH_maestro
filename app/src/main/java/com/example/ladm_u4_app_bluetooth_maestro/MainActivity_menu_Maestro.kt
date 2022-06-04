@@ -146,9 +146,9 @@ class MainActivity_menu_Maestro : AppCompatActivity() {
             var min = tmp.minute
             var seg =tmp.second
 
-
+        var asistencia= binding.tvMessage.text.toString()
                  //consulta("${ano}-${mes}-${dia}-${min}-${seg}")
-                 consulta2("${ano},${mes},${dia},${min},${seg}")
+                 consulta2("${ano},${mes},${dia},${min},${seg},${asistencia}")
                 //Toast.makeText(this,"AD: ${ano}-${mes}-${dia}",Toast.LENGTH_LONG).show()
 
 
@@ -346,7 +346,7 @@ class MainActivity_menu_Maestro : AppCompatActivity() {
     fun consulta2(fecha: String) {
         var arreglo = ArrayList<String>()
 
-        var asis = "${fecha},"+binding.tvMessage.text.toString()
+        var asis = "${fecha},\n"
         arreglo.add(asis)
         //Toast.makeText(applicationContext,"${arreglo}", Toast.LENGTH_SHORT).show()
         crearArchivo2(arreglo)
